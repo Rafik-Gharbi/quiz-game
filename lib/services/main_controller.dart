@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -25,6 +26,7 @@ class MainController extends GetxController {
   RxList<Student> students = <Student>[].obs;
   String? userUid;
   StudentData? studentData;
+  int indexFromTotalQuestions = 0;
   bool studentIsFinished = false;
 
   DatabaseReference get dbRoomRef => dbRef.child(roomCode!);
@@ -42,7 +44,7 @@ class MainController extends GetxController {
       final jsonData = json.decode(text);
       quizData = QuizData.fromJson(jsonData);
       // Generate room code
-      roomCode = _generateRoomCode();
+      roomCode = await _generateRoomCode();
       // Create room in Firestore
       await dbRef.child(roomCode!).set({
         'code': roomCode,
@@ -80,7 +82,7 @@ class MainController extends GetxController {
         name: studentName,
         joinedAt: DateTime.now().toIso8601String(),
       );
-      await dbRef.child('$roomCode/students/${currentStudent!.uid}').set({
+      await dbCurrentStudentRef.set({
         'id': currentStudent!.uid,
         'name': currentStudent!.name,
         'status': 'waiting',
@@ -89,6 +91,7 @@ class MainController extends GetxController {
         'currentSectionIndex': 0,
         'indexFromTotalQuestions': 0,
         'answers': {},
+        'cheated': {},
         'score': 0,
       });
       _saveRoom('student', studentUid: currentStudent!.uid);
@@ -112,13 +115,20 @@ class MainController extends GetxController {
     }
   }
 
-  String _generateRoomCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    final random = DateTime.now().millisecondsSinceEpoch;
-    return List.generate(
-      6,
-      (index) => chars[(random + index) % chars.length],
-    ).join();
+  Future<String> _generateRoomCode([int length = 6]) async {
+    while (true) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      final rand = Random.secure();
+      final code = String.fromCharCodes(
+        Iterable.generate(
+          length,
+          (_) => chars.codeUnitAt(rand.nextInt(chars.length)),
+        ),
+      );
+
+      final snap = await dbRef.child(code).get();
+      if (!snap.exists) return code;
+    }
   }
 
   Future<void> _initializeRoom(String code, {String? studentUid}) async {
@@ -197,6 +207,8 @@ class MainController extends GetxController {
       dbRoomRef.update({'status': 'canceled'});
       Get.to(() => AdminScreen());
     } else {
+      studentIsFinished = false;
+      SharedPreferencesService().removeKey(roomStudentKey);
       Get.to(() => StudentScreen());
     }
   }

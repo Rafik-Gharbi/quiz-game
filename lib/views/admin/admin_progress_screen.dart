@@ -7,9 +7,7 @@ import '../../services/main_controller.dart';
 import 'admin_result_screen.dart';
 
 class AdminQuizProgressScreen extends StatelessWidget {
-  final String roomCode;
-
-  const AdminQuizProgressScreen({super.key, required this.roomCode});
+  const AdminQuizProgressScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +43,13 @@ class AdminQuizProgressScreen extends StatelessWidget {
 
               if (allFinished && students.isNotEmpty) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
+                  MainController.find.dbRoomRef.update({
+                    'status': 'finished',
+                  });
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => AdminResultsScreen(roomCode: roomCode),
+                      builder: (_) => AdminResultsScreen(),
                     ),
                   );
                 });

@@ -33,17 +33,26 @@ class StudentResultScreen extends StatelessWidget {
           // Calculate wrong questions
           final wrongQuestions = <Map<String, dynamic>>[];
           final sectionsStats = <String, int>{};
+          int questionIndex = 0;
           for (var section in quizData!.sections) {
             int correctAnswerInSection = 0;
             for (int i = 0; i < section.questions.length; i++) {
+              questionIndex++;
               final question = section.questions[i];
+              final hasCheated =
+                  MainController
+                      .find
+                      .studentData!
+                      .cheated[questionIndex]
+                      ?.isNotEmpty ??
+                  false;
               final answer = MainController
                   .find
                   .studentData!
                   .answers['${section.name}_$i'];
 
               bool isCorrect = false;
-              if (answer != null) {
+              if (answer != null && !hasCheated) {
                 if (question.type == 'single') {
                   isCorrect = answer == question.correct[0];
                 } else {
@@ -56,10 +65,11 @@ class StudentResultScreen extends StatelessWidget {
                 }
               }
 
-              if (!isCorrect) {
+              if (!isCorrect || hasCheated) {
                 wrongQuestions.add({
                   'section': section.name,
                   'question': question.question,
+                  'hasCheated': hasCheated,
                   'correctAnswer': question.correct
                       .map((idx) => question.options[idx])
                       .join(', '),
@@ -71,7 +81,7 @@ class StudentResultScreen extends StatelessWidget {
                                   .join(', '))
                       : 'Not answered',
                 });
-              } else {
+              } else if (!hasCheated) {
                 correctAnswerInSection++;
               }
             }
@@ -288,92 +298,155 @@ class StudentResultScreen extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(height: 16),
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Icon(
-                                          Icons.close,
-                                          color: Colors.red,
-                                          size: 20,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
+                                  Row(
+                                    children: [
+                                      if (wq['hasCheated'] == true) ...[
+                                        Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
                                           child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
-                                              const Text(
-                                                'Your Answer',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.red,
-                                                ),
+                                              Icon(
+                                                Icons.warning_outlined,
+                                                color: Colors.red,
+                                                size: 20,
                                               ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                wq['userAnswer'],
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: Color(0xFF2C3E50),
+                                              const SizedBox(height: 6),
+                                              SizedBox(
+                                                width: 80,
+                                                child: Text(
+                                                  'Cheating detected!',
+                                                  softWrap: true,
+                                                  textAlign: TextAlign.center,
+                                                  style: AppFonts.x12Regular
+                                                      .copyWith(
+                                                        color:
+                                                            Colors.red.shade700,
+                                                      ),
                                                 ),
                                               ),
                                             ],
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Icon(
-                                          Icons.check,
-                                          color: Colors.green,
-                                          size: 20,
-                                        ),
                                         const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const Text(
-                                                'Correct Answer',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.green,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                wq['correctAnswer'],
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: Color(0xFF2C3E50),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
                                       ],
-                                    ),
+                                      Expanded(
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(12),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.close,
+                                                    color: Colors.red,
+                                                    size: 20,
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        const Text(
+                                                          'Your Answer',
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.red,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 4,
+                                                        ),
+                                                        Text(
+                                                          wq['userAnswer'],
+                                                          style:
+                                                              const TextStyle(
+                                                                fontSize: 14,
+                                                                color: Color(
+                                                                  0xFF2C3E50,
+                                                                ),
+                                                              ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Container(
+                                              padding: const EdgeInsets.all(12),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.check,
+                                                    color: Colors.green,
+                                                    size: 20,
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        const Text(
+                                                          'Correct Answer',
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.green,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 4,
+                                                        ),
+                                                        Text(
+                                                          wq['correctAnswer'],
+                                                          style:
+                                                              const TextStyle(
+                                                                fontSize: 14,
+                                                                color: Color(
+                                                                  0xFF2C3E50,
+                                                                ),
+                                                              ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),

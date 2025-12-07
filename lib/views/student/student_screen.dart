@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_games/services/anti_cheating_service.dart';
 import 'package:quiz_games/views/widgets/app_header.dart';
 
 import '../../services/main_controller.dart';
@@ -26,6 +27,7 @@ class _StudentScreenState extends State<StudentScreen> {
       _codeController.text,
       _nameController.text,
     );
+    AntiCheatingService.find.checkFullscreenEnabled(force: true);
     setState(() => _isLoading = false);
   }
 

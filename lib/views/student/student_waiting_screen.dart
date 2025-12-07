@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quiz_games/services/anti_cheating_service.dart';
 import 'package:quiz_games/views/student/student_result_screen.dart';
 import 'package:quiz_games/views/widgets/app_header.dart';
 
@@ -30,6 +31,7 @@ class StudentWaitingScreen extends StatelessWidget {
 
           final status = roomData['status'];
 
+          AntiCheatingService.find.checkFullscreenEnabled(force: true);
           if (status == 'active' && !MainController.find.studentIsFinished) {
             WidgetsBinding.instance.addPostFrameCallback(
               (_) => Get.to(() => StudentQuizScreen()),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
+import 'package:quiz_games/services/anti_cheating_service.dart';
 
 import 'services/main_controller.dart';
 import 'services/shared_preferences.dart';
@@ -35,6 +36,7 @@ class InitialBindings implements Bindings {
     // Controllers & Services
     Get.put(SharedPreferencesService(), permanent: true);
     Get.put(MainController(), permanent: true);
+    Get.put(AntiCheatingService(), permanent: true);
   }
 }
 

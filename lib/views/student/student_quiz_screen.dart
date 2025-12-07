@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quiz_games/services/anti_cheating_service.dart';
 import 'package:quiz_games/utils/constants/colors.dart';
 
 import '../../models/quiz_data.dart';
@@ -22,10 +23,9 @@ class _StudentQuizScreenState extends State<StudentQuizScreen> {
   int _currentSectionIndex = 0;
   int _currentQuestionIndex = 0;
   int _totalQuestions = 0;
-  int _indexFromTotalQuestions = 1;
   dynamic _selectedAnswer;
   Timer? _timer;
-  int _timeRemaining = 0;
+  double _timeRemaining = 0;
   QuizData? _quizData;
 
   @override
@@ -33,6 +33,8 @@ class _StudentQuizScreenState extends State<StudentQuizScreen> {
     super.initState();
     _loadQuizData();
     _totalQuestions = MainController.find.questionsNumber;
+    MainController.find.studentData?.status = 'active';
+    MainController.find.indexFromTotalQuestions = 1;
   }
 
   Future<void> _loadQuizData() async {
@@ -60,12 +62,13 @@ class _StudentQuizScreenState extends State<StudentQuizScreen> {
     final question = _quizData!
         .sections[_currentSectionIndex]
         .questions[_currentQuestionIndex];
-    _timeRemaining = question.timeLimit;
+    _timeRemaining = question.timeLimit.toDouble();
 
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    AntiCheatingService.find.startedQuestionTime ??= DateTime.now();
+    _timer = Timer.periodic(const Duration(milliseconds: 250), (timer) {
       if (_timeRemaining > 0) {
-        setState(() => _timeRemaining--);
+        setState(() => _timeRemaining -= 0.25);
       } else {
         _submitAnswer();
       }
@@ -79,10 +82,17 @@ class _StudentQuizScreenState extends State<StudentQuizScreen> {
     final answerKey = '${section.name}_$_currentQuestionIndex';
     _answers[answerKey] = _selectedAnswer;
 
+    AntiCheatingService.find.checkQuestionTime(section.questions[_currentQuestionIndex]);
+
+    final cheating = AntiCheatingService.find.detectedCheatings.map(
+      (e, v) => MapEntry<int, String>(e, v.toSet().join(',')),
+    );
+    print(cheating.values);
     await MainController.find.dbCurrentStudentRef.update({
       'answers': _answers,
-      'indexFromTotalQuestions': _indexFromTotalQuestions,
-      'currentQuestionIndex': _currentQuestionIndex + 1,
+      'cheated': cheating,
+      'indexFromTotalQuestions': MainController.find.indexFromTotalQuestions,
+      'currentQuestionIndex': MainController.find.indexFromTotalQuestions + 1,
       'currentSectionIndex': _currentSectionIndex,
     });
 
@@ -90,7 +100,7 @@ class _StudentQuizScreenState extends State<StudentQuizScreen> {
     if (_currentQuestionIndex < section.questions.length - 1) {
       setState(() {
         _currentQuestionIndex++;
-        _indexFromTotalQuestions++;
+        MainController.find.indexFromTotalQuestions++;
         _selectedAnswer = null;
         _selectedMultiple.clear();
         _startTimer();
@@ -98,7 +108,7 @@ class _StudentQuizScreenState extends State<StudentQuizScreen> {
     } else if (_currentSectionIndex < _quizData!.sections.length - 1) {
       setState(() {
         _currentSectionIndex++;
-        _indexFromTotalQuestions++;
+        MainController.find.indexFromTotalQuestions++;
         _currentQuestionIndex = 0;
         _selectedAnswer = null;
         _selectedMultiple.clear();
@@ -114,13 +124,21 @@ class _StudentQuizScreenState extends State<StudentQuizScreen> {
 
     // Calculate score
     int totalCorrect = 0;
+    int indexQuestion = 0;
 
     for (var section in _quizData!.sections) {
       for (int i = 0; i < section.questions.length; i++) {
+        indexQuestion++;
         final question = section.questions[i];
+        final hasCheated =
+            AntiCheatingService
+                .find
+                .detectedCheatings[indexQuestion]
+                ?.isNotEmpty ??
+            false;
         final answer = _answers['${section.name}_$i'];
 
-        if (answer != null) {
+        if (answer != null && !hasCheated) {
           if (question.type == 'single') {
             if (answer == question.correct[0]) totalCorrect++;
           } else {
@@ -204,7 +222,7 @@ class _StudentQuizScreenState extends State<StudentQuizScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            '$_timeRemaining s',
+                            '${_timeRemaining.toInt()} s',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -222,7 +240,7 @@ class _StudentQuizScreenState extends State<StudentQuizScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Question $_indexFromTotalQuestions of $_totalQuestions',
+                        'Question ${MainController.find.indexFromTotalQuestions} of $_totalQuestions',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -230,7 +248,7 @@ class _StudentQuizScreenState extends State<StudentQuizScreen> {
                         ),
                       ),
                       Text(
-                        '${(_indexFromTotalQuestions - 1) / _totalQuestions * 100}% Complete',
+                        '${((MainController.find.indexFromTotalQuestions - 1) / _totalQuestions * 100).toInt()}% Complete',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -241,7 +259,9 @@ class _StudentQuizScreenState extends State<StudentQuizScreen> {
                   ),
                   const SizedBox(height: 8),
                   LinearProgressIndicator(
-                    value: (_indexFromTotalQuestions - 1) / _totalQuestions,
+                    value:
+                        (MainController.find.indexFromTotalQuestions - 1) /
+                        _totalQuestions,
                     backgroundColor: kNeutralLightColor,
                     color: kPrimaryColor.withAlpha(180),
                     minHeight: 8,

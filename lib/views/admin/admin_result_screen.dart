@@ -7,9 +7,7 @@ import '../../services/main_controller.dart';
 import '../../services/theme/theme.dart';
 
 class AdminResultsScreen extends StatelessWidget {
-  final String roomCode;
-
-  const AdminResultsScreen({super.key, required this.roomCode});
+  const AdminResultsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +39,7 @@ class AdminResultsScreen extends StatelessWidget {
 
           // Calculate section averages
           final sectionScores = <String, List<double>>{};
+          int questionIndex = 0;
           for (var section in MainController.find.quizData!.sections) {
             sectionScores[section.name] = [];
           }
@@ -53,9 +52,17 @@ class AdminResultsScreen extends StatelessWidget {
               int total = section.questions.length;
 
               for (int i = 0; i < section.questions.length; i++) {
+                questionIndex++;
+                final hasCheated =
+                    MainController
+                        .find
+                        .studentData!
+                        .cheated[questionIndex]
+                        ?.isNotEmpty ??
+                    false;
                 final question = section.questions[i];
                 final answer = answers['${section.name}_$i'];
-                if (answer != null) {
+                if (answer != null && !hasCheated) {
                   if (question.type == 'single') {
                     if (answer == question.correct[0]) correct++;
                   } else {

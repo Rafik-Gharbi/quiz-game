@@ -1,10 +1,12 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
+import 'package:flutter/services.dart' show ClipboardData, Clipboard;
 import 'package:get/get.dart';
 import 'package:quiz_games/models/section.dart';
 import 'package:quiz_games/models/student.dart';
 import 'package:quiz_games/services/theme/theme.dart';
+import 'package:quiz_games/views/admin/admin_result_screen.dart';
 import 'package:quiz_games/views/widgets/app_header.dart';
 
 import '../../services/main_controller.dart';
@@ -48,9 +50,16 @@ class AdminWaitingRoomScreen extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (_) =>
-                          AdminQuizProgressScreen(roomCode: roomCode),
+                      builder: (_) => AdminQuizProgressScreen(),
                     ),
+                  );
+                });
+              }
+              if (status == 'finished') {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => AdminResultsScreen()),
                   );
                 });
               }
@@ -103,21 +112,38 @@ class AdminWaitingRoomScreen extends StatelessWidget {
                                   ],
                                 ),
                                 Container(
+                                  width: 250,
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFF5F7FA),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        'Room Code',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey.shade600,
-                                        ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Room Code',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 50,
+                                            child: IconButton(
+                                              onPressed: () =>
+                                                  Clipboard.setData(
+                                                    ClipboardData(
+                                                      text: roomCode,
+                                                    ),
+                                                  ),
+                                              icon: Icon(Icons.copy_outlined),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
@@ -206,172 +232,180 @@ class AdminWaitingRoomScreen extends StatelessWidget {
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.people,
-                                      color: Color(0xFF5B7FFF),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      '${students.length} Joined Players',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF2C3E50),
+                            child: Obx(
+                              () => Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.people,
+                                        color: Color(0xFF5B7FFF),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 24),
-                                students.isEmpty
-                                    ? Center(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              Icons.person_add_alt_1,
-                                              size: 64,
-                                              color: Colors.grey.shade300,
-                                            ),
-                                            const SizedBox(height: 16),
-                                            Text(
-                                              'Waiting for students to join...',
-                                              style: TextStyle(
-                                                color: Colors.grey.shade500,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                          ],
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '${students.length} Joined Players',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF2C3E50),
                                         ),
-                                      )
-                                    : GridView.builder(
-                                        shrinkWrap: true,
-                                        physics: NeverScrollableScrollPhysics(),
-                                        gridDelegate:
-                                            SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount:
-                                                  joinedStudentsPerRow,
-                                              mainAxisSpacing: 16,
-                                              crossAxisSpacing: 16,
-                                              childAspectRatio: 0.8,
-                                            ),
-                                        itemCount: students.length,
-                                        itemBuilder: (context, index) {
-                                          final student = students[index];
-                                          return Container(
-                                            padding: const EdgeInsets.all(12),
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFFF5F7FA),
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                CircleAvatar(
-                                                  backgroundColor: const Color(
-                                                    0xFF5B7FFF,
-                                                  ),
-                                                  radius: 24,
-                                                  child: Text(
-                                                    student.name[0]
-                                                        .toUpperCase(),
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 20,
-                                                    ),
-                                                  ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 24),
+                                  students.isEmpty
+                                      ? Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.person_add_alt_1,
+                                                size: 64,
+                                                color: Colors.grey.shade300,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              Text(
+                                                'Waiting for students to join...',
+                                                style: TextStyle(
+                                                  color: Colors.grey.shade500,
+                                                  fontSize: 16,
                                                 ),
-                                                const SizedBox(height: 8),
-                                                Text(
-                                                  student.name,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 14,
-                                                  ),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  'Joined at: ${student.joinedAt}',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey.shade600,
-                                                  ),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 4,
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      : GridView.builder(
+                                          shrinkWrap: true,
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          gridDelegate:
+                                              SliverGridDelegateWithFixedCrossAxisCount(
+                                                crossAxisCount:
+                                                    joinedStudentsPerRow,
+                                                mainAxisSpacing: 16,
+                                                crossAxisSpacing: 16,
+                                                childAspectRatio: 0.8,
+                                              ),
+                                          itemCount: students.length,
+                                          itemBuilder: (context, index) {
+                                            final student = students[index];
+                                            return Container(
+                                              padding: const EdgeInsets.all(12),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFFF5F7FA),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  CircleAvatar(
+                                                    backgroundColor:
+                                                        const Color(0xFF5B7FFF),
+                                                    radius: 24,
+                                                    child: Text(
+                                                      student.name[0]
+                                                          .toUpperCase(),
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 20,
                                                       ),
-                                                  decoration: BoxDecoration(
-                                                    color: const Color(
-                                                      0xFF4CAF50,
                                                     ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          12,
-                                                        ),
                                                   ),
-                                                  child: const Text(
-                                                    'Ready',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 11,
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    student.name,
+                                                    style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.w600,
+                                                      fontSize: 14,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    'Joined at: ${student.joinedAt}',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                          Colors.grey.shade600,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 4,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(
+                                                        0xFF4CAF50,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                    ),
+                                                    child: const Text(
+                                                      'Ready',
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 11,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                  const SizedBox(height: 24),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 48,
+                                    child: ElevatedButton(
+                                      onPressed: students.isEmpty
+                                          ? null
+                                          : () => _startQuiz(roomCode),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xFF4CAF50,
+                                        ),
+                                        foregroundColor: Colors.white,
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        disabledBackgroundColor:
+                                            Colors.grey.shade300,
                                       ),
-                                const SizedBox(height: 24),
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 48,
-                                  child: ElevatedButton(
-                                    onPressed: students.isEmpty
-                                        ? null
-                                        : () => _startQuiz(roomCode),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF4CAF50),
-                                      foregroundColor: Colors.white,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      disabledBackgroundColor:
-                                          Colors.grey.shade300,
-                                    ),
-                                    child: const Text(
-                                      'Start Quiz',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
+                                      child: const Text(
+                                        'Start Quiz',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           );
                         },
