@@ -7,6 +7,7 @@ import 'package:flutter/material.dart' show debugPrint;
 import 'package:get/get.dart';
 import 'package:quiz_games/models/student.dart';
 import 'package:quiz_games/services/shared_preferences.dart';
+import 'package:quiz_games/services/randomization_service.dart';
 import 'package:quiz_games/utils/constants/shared_preferences_keys.dart';
 import 'package:quiz_games/views/admin/admin_screen.dart';
 import 'package:quiz_games/views/student/student_screen.dart';
@@ -29,6 +30,10 @@ class MainController extends GetxController {
   int indexFromTotalQuestions = 0;
   bool studentIsFinished = false;
 
+  // Randomization options
+  bool randomizeQuestions = false;
+  bool randomizeAnswers = false;
+
   DatabaseReference get dbRoomRef => dbRef.child(roomCode!);
   DatabaseReference get dbStudentsRef => dbRef.child('${roomCode!}/students');
   DatabaseReference get dbCurrentStudentRef =>
@@ -42,7 +47,18 @@ class MainController extends GetxController {
   Future<void> createRoom(String text) async {
     try {
       final jsonData = json.decode(text);
-      quizData = QuizData.fromJson(jsonData);
+      var quizDataTemp = QuizData.fromJson(jsonData);
+
+      // Apply randomization if configured
+      if (randomizeQuestions || randomizeAnswers) {
+        quizDataTemp = RandomizationService().randomizeQuiz(
+          quizData: quizDataTemp,
+          randomizeQuestions: randomizeQuestions,
+          randomizeAnswers: randomizeAnswers,
+        );
+      }
+
+      quizData = quizDataTemp;
       // Generate room code
       roomCode = await _generateRoomCode();
       // Create room in Firestore
@@ -50,6 +66,8 @@ class MainController extends GetxController {
         'code': roomCode,
         'admin': FirebaseAuth.instance.currentUser?.uid,
         'quizData': quizData!.toJson(),
+        'randomizeQuestions': randomizeQuestions,
+        'randomizeAnswers': randomizeAnswers,
         'status': 'waiting', // waiting, active, finished, canceled
         'createdAt': ServerValue.timestamp,
       });

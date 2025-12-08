@@ -85,9 +85,9 @@ class _StudentQuizScreenState extends State<StudentQuizScreen> {
     AntiCheatingService.find.checkQuestionTime(section.questions[_currentQuestionIndex]);
 
     final cheating = AntiCheatingService.find.detectedCheatings.map(
-      (e, v) => MapEntry<int, String>(e, v.toSet().join(',')),
+      (e, v) => MapEntry<int, String>(e, v.join(',')),
     );
-    print(cheating.values);
+    debugPrint('Question ${MainController.find.indexFromTotalQuestions} ${cheating.values.join(',')}');
     await MainController.find.dbCurrentStudentRef.update({
       'answers': _answers,
       'cheated': cheating,

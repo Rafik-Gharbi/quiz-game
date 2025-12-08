@@ -39,12 +39,12 @@ class AdminResultsScreen extends StatelessWidget {
 
           // Calculate section averages
           final sectionScores = <String, List<double>>{};
-          int questionIndex = 0;
           for (var section in MainController.find.quizData!.sections) {
             sectionScores[section.name] = [];
           }
 
           for (var student in students) {
+            int questionIndex = 0;
             final answers = student.answers;
 
             for (var section in MainController.find.quizData!.sections) {
@@ -54,12 +54,7 @@ class AdminResultsScreen extends StatelessWidget {
               for (int i = 0; i < section.questions.length; i++) {
                 questionIndex++;
                 final hasCheated =
-                    MainController
-                        .find
-                        .studentData!
-                        .cheated[questionIndex]
-                        ?.isNotEmpty ??
-                    false;
+                    student.cheated[questionIndex]?.isNotEmpty ?? false;
                 final question = section.questions[i];
                 final answer = answers['${section.name}_$i'];
                 if (answer != null && !hasCheated) {

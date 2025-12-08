@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/material.dart' show Durations;
 import 'package:quiz_games/models/question.dart';
 import 'package:quiz_games/services/main_controller.dart';
-import 'package:quiz_games/utils/helper.dart';
 import 'package:quiz_games/views/widgets/fullscreen_dialog.dart';
 import 'package:web/web.dart' as web;
 import 'dart:js_interop';
@@ -22,17 +22,33 @@ extension ScreenProps on Screen {
 external Screen get jsScreen;
 
 class AntiCheatingService extends GetxController {
-  static AntiCheatingService find = Get.find<AntiCheatingService>();
   static bool disabled = false; // set to true to disable
-  // DateTime _lastActivity = DateTime.now();
-  Timer? timer;
+
+  static AntiCheatingService get find => Get.find<AntiCheatingService>();
+
+  // Timers and intervals
+  Timer? _fullscreenCheckTimer;
+  int? _devToolsCheckIntervalId;
+
+  // Visibility subscriptions
+  StreamSubscription? _visibilitySubscription;
+  StreamSubscription? _keyboardSubscription;
+
   bool checkForFullscreenExit = false;
-  Map<int, List<String>> detectedCheatings = {};
+  Map<int, Set<String>> detectedCheatings =
+      {}; // Changed from List to Set for deduplication
   DateTime? startedQuestionTime;
+
+  // Rate limiting for duplicate events
+  final Map<String, DateTime> _lastReportedEvents = {};
+  static const Duration _reportCooldown = Duration(seconds: 2);
 
   @override
   void dispose() {
-    timer?.cancel();
+    _fullscreenCheckTimer?.cancel();
+    _visibilitySubscription?.cancel();
+    _keyboardSubscription?.cancel();
+    _clearDevToolsInterval();
     super.dispose();
   }
 
@@ -43,30 +59,46 @@ class AntiCheatingService extends GetxController {
     _setupKeyboardDetection();
     _setupContextMenuBlock();
     _setupActivityTracking();
+    _setupBlurFocusDetection();
+  }
+
+  /// Rate-limited event reporting to prevent duplicate spam
+  bool _shouldReportEvent(String eventType) {
+    final lastReport = _lastReportedEvents[eventType];
+    if (lastReport == null) {
+      _lastReportedEvents[eventType] = DateTime.now();
+      return true;
+    }
+
+    if (DateTime.now().difference(lastReport) > _reportCooldown) {
+      _lastReportedEvents[eventType] = DateTime.now();
+      return true;
+    }
+    return false;
   }
 
   Future<void> reportEventToServer(String type) async {
+    // Rate limiting - prevent spam reporting
+    if (!_shouldReportEvent(type)) return;
+
     final cheatingDetectedType = 'Cheating Detected: $type';
-    print(cheatingDetectedType);
-    Helper.snackBar(
-      message: cheatingDetectedType,
-      duration: Durations.extralong4,
-    );
+    debugPrint(cheatingDetectedType);
     final inProgress =
         MainController.find.studentData?.status == 'active' ||
         Get.currentRoute == "/StudentQuizScreen";
-    print('status ${MainController.find.studentData?.status}');
-    print('inProgress $inProgress');
     if (!inProgress) return;
-    final existQuestion = detectedCheatings.containsKey(
-      MainController.find.indexFromTotalQuestions,
-    );
+
+    final questionIndex = MainController.find.indexFromTotalQuestions == 0
+        ? 1
+        : MainController.find.indexFromTotalQuestions;
+    final existQuestion = detectedCheatings.containsKey(questionIndex);
+
     if (existQuestion) {
-      detectedCheatings[MainController.find.indexFromTotalQuestions]!.add(type);
+      detectedCheatings[questionIndex]!.add(type);
     } else {
-      detectedCheatings[MainController.find.indexFromTotalQuestions] = [type];
+      detectedCheatings[questionIndex] = {type};
     }
-    print('Reported $cheatingDetectedType');
+    debugPrint('Reported $cheatingDetectedType for question $questionIndex');
   }
 
   void checkFullscreenEnabled({bool force = false}) {
@@ -88,11 +120,12 @@ class AntiCheatingService extends GetxController {
         "question_time_exceeded_${duration.inMinutes - question.timeLimit}mn",
       );
     }
+    // Only reset after reporting to avoid race conditions
     startedQuestionTime = null;
   }
 
   void _setupVisibilityDetection() {
-    web.document.onVisibilityChange.listen((event) {
+    _visibilitySubscription = web.document.onVisibilityChange.listen((event) {
       final isHidden = web.document.hidden;
       if (isHidden == true) {
         reportEventToServer("tab_switched");
@@ -108,15 +141,17 @@ class AntiCheatingService extends GetxController {
   }
 
   void _setupKeyboardDetection() {
-    web.window.onKeyDown.listen((event) {
+    _keyboardSubscription = web.window.onKeyDown.listen((event) {
       final keyboardEvent = event;
 
       if (keyboardEvent.key == "PrintScreen") {
         reportEventToServer("screenshot_key");
+        event.preventDefault();
       }
 
       if (keyboardEvent.ctrlKey == true && keyboardEvent.key == "c") {
         reportEventToServer("copy_attempt");
+        event.preventDefault();
       }
     });
   }
@@ -138,9 +173,12 @@ class AntiCheatingService extends GetxController {
     final outerHeight = web.window.outerHeight;
     final innerHeight = web.window.innerHeight;
 
-    if ((outerWidth - innerWidth) > 160) result = true;
+    // Increased threshold from 160px to 250px to reduce false positives
+    const int threshold = 250;
 
-    if ((outerHeight - innerHeight) > 160) result = true;
+    if ((outerWidth - innerWidth) > threshold) result = true;
+
+    if ((outerHeight - innerHeight) > threshold) result = true;
 
     if (result) {
       Future.delayed(Duration(seconds: 1), () => checkFullscreenEnabled());
@@ -149,15 +187,34 @@ class AntiCheatingService extends GetxController {
     return result;
   }
 
+  void _clearDevToolsInterval() {
+    if (_devToolsCheckIntervalId != null) {
+      web.window.clearInterval(_devToolsCheckIntervalId!);
+      _devToolsCheckIntervalId = null;
+    }
+  }
+
   void _setupActivityTracking() {
-    web.window.setInterval(
+    // Store interval ID for proper cleanup
+    _devToolsCheckIntervalId = web.window.setInterval(
       (() {
         if (_isDevToolsLikelyOpen()) {
           reportEventToServer("devtools_open");
         }
       }).toJS,
-      null,
-      1000,
+      1000 as JSAny?,
+    );
+  }
+
+  void _setupBlurFocusDetection() {
+    // Detect when window loses focus using document visibility change
+    web.document.addEventListener(
+      'visibilitychange',
+      ((web.Event event) {
+        if (web.document.hidden == false) {
+          reportEventToServer("window_focus_regained");
+        }
+      }).toJS,
     );
   }
 
@@ -169,34 +226,28 @@ class AntiCheatingService extends GetxController {
     if (force) {
       _enterFullscreen();
     } else {
-      Future.delayed(
-        Durations.extralong4,
-        () => Get.isDialogOpen == true
-            ? {}
-            : FullscreenDialog(() => _enterFullscreen()),
-      );
+      Future.delayed(Durations.extralong4, () {
+        // Fixed: Actually call the dialog instead of returning empty map
+        if (Get.isDialogOpen != true) {
+          FullscreenDialog(() => _enterFullscreen());
+        }
+      });
     }
   }
 
   Future<void> _enterFullscreen() async {
     checkForFullscreenExit = true;
-    timer = Timer.periodic(
+    // Cancel previous timer before creating a new one
+    _fullscreenCheckTimer?.cancel();
+    _fullscreenCheckTimer = Timer.periodic(
       const Duration(seconds: 3),
       (_) => checkFullscreenEnabled(),
     );
     if (web.document.fullscreen) return;
-    await web.document.documentElement?.requestFullscreen().toDart;
-  }
-
-  bool _isFullscreen() {
-    final elem = web.document.fullscreenElement;
-
-    final heightMatch =
-        (web.window.innerHeight.toDouble() >= jsScreen.height.toDouble() - 5);
-
-    final widthMatch =
-        (web.window.innerWidth.toDouble() >= jsScreen.width.toDouble() - 5);
-
-    return elem != null || (heightMatch && widthMatch);
+    try {
+      await web.document.documentElement?.requestFullscreen().toDart;
+    } catch (e) {
+      debugPrint('Error entering fullscreen: $e');
+    }
   }
 }

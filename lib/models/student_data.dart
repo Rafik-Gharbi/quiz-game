@@ -26,6 +26,27 @@ class StudentData {
   });
 
   factory StudentData.fromJson(Map<String, dynamic> json) {
+    final cheatedRaw = json['cheated'];
+
+    Map<int, String> cheatedMap = {};
+
+    if (cheatedRaw is Map) {
+      // Proper map representation
+      cheatedRaw.forEach((key, value) {
+        final intKey = int.tryParse(key.toString());
+        if (intKey != null && value != null) {
+          cheatedMap[intKey] = value.toString();
+        }
+      });
+    } else if (cheatedRaw is List) {
+      // Firebase converted your map into a list -> convert back manually
+      for (int i = 0; i < cheatedRaw.length; i++) {
+        final v = cheatedRaw[i];
+        if (v != null) {
+          cheatedMap[i] = v.toString();
+        }
+      }
+    }
     return StudentData(
       student: Student(
         uid: json['uid'] ?? json['id'],
@@ -33,18 +54,19 @@ class StudentData {
         joinedAt: Helper.joinedTime(json['joinedAt']),
       ),
       answers: Map<String, dynamic>.from(json['answers'] as Map? ?? {}),
-      cheated: Map<int, String?>.from(
-        json['cheated'] is List
-            ? Map<int, String?>.fromIterable(
-                json['cheated'],
-                key: (element) => json['cheated'].indexOf(element),
-              )
-            : Map<int, String?>.from(
-                (json['cheated'] as Map? ?? {}).map(
-                  (key, value) => MapEntry(int.parse(key), value),
-                ),
-              ),
-      ),
+      cheated: cheatedMap,
+      // cheated: Map<int, String?>.from(
+      //   json['cheated'] is List
+      //       ? Map<int, String?>.fromIterable(
+      //           json['cheated'],
+      //           key: (element) => json['cheated'].indexOf(element),
+      //         )
+      //       : Map<int, String?>.from(
+      //           (json['cheated'] as Map? ?? {}).map(
+      //             (key, value) => MapEntry(int.parse(key), value),
+      //           ),
+      //         ),
+      // ),
       currentQuestionIndex: json['currentQuestionIndex'],
       currentSectionIndex: json['currentSectionIndex'],
       joinedAt: Helper.joinedTime(json['joinedAt']),
