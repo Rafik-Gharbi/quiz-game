@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Redirecting...</title>
+    <script type="text/javascript">
+      const redirectTo = window.location.pathname
+        .replace("/group_leaderboard", "") // remove repo base
+        .replace(/^\//, ""); // remove starting slash if any
+
+      // Store the target path in sessionStorage
+      sessionStorage.redirect = redirectTo;
+      window.location.replace("/group_leaderboard/");
+    </script>
+  </head>
+  <body>
+    <center><p>Redirecting...</p></center>
+  </body>
+</html>
