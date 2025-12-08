@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import 'package:quiz_games/services/anti_cheating_service.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'services/main_controller.dart';
 import 'services/shared_preferences.dart';
@@ -12,6 +13,7 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  usePathUrlStrategy();
   runApp(const QuizApp());
 }
 
