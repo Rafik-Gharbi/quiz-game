@@ -49,15 +49,6 @@ class MainController extends GetxController {
       final jsonData = json.decode(text);
       var quizDataTemp = QuizData.fromJson(jsonData);
 
-      // Apply randomization if configured
-      if (randomizeQuestions || randomizeAnswers) {
-        quizDataTemp = RandomizationService().randomizeQuiz(
-          quizData: quizDataTemp,
-          randomizeQuestions: randomizeQuestions,
-          randomizeAnswers: randomizeAnswers,
-        );
-      }
-
       quizData = quizDataTemp;
       // Generate room code
       roomCode = await _generateRoomCode();
@@ -162,6 +153,17 @@ class MainController extends GetxController {
       quizData = QuizData.fromJson(
         jsonDecode(jsonEncode(roomData['quizData'])),
       );
+      // Apply randomization if configured
+      randomizeQuestions = roomData['randomizeQuestions'] ?? false;
+      randomizeAnswers = roomData['randomizeAnswers'] ?? false;
+      if (randomizeQuestions || randomizeAnswers) {
+        quizData = RandomizationService().randomizeQuiz(
+          quizData: quizData!,
+          randomizeQuestions: randomizeQuestions,
+          randomizeAnswers: randomizeAnswers,
+        );
+      }
+
       if (studentUid != null) {
         debugPrint(roomCode);
         final studentDoc = await dbRef

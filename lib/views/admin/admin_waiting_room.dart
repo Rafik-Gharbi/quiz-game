@@ -13,6 +13,8 @@ import '../../services/main_controller.dart';
 import 'admin_progress_screen.dart';
 
 class AdminWaitingRoomScreen extends StatelessWidget {
+  static String routeName = '/admin-lobby';
+
   const AdminWaitingRoomScreen({super.key});
 
   @override

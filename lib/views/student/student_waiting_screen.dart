@@ -11,6 +11,8 @@ import '../../services/theme/theme.dart';
 import 'student_quiz_screen.dart';
 
 class StudentWaitingScreen extends StatelessWidget {
+  static String routeName = '/student-lobby';
+
   const StudentWaitingScreen({super.key});
 
   @override

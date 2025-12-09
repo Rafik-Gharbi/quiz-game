@@ -8,6 +8,8 @@ import '../student/student_screen.dart';
 import 'components/role_button.dart';
 
 class HomeScreen extends StatefulWidget {
+  static String routeName = '/';
+
   const HomeScreen({super.key});
 
   @override

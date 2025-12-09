@@ -26,11 +26,10 @@ class Helper {
 
   static bool isMobile() =>
       // kIsWeb && ResponsiveBreakpoints.of(Get.context!).isMobile ||
-      !kIsWeb &&
-      (Get.width <= kMobileMaxWidth ||
-          GetPlatform.isAndroid ||
-          GetPlatform.isIOS ||
-          GetPlatform.isMobile);
+      (kIsWeb && Get.width <= kMobileMaxWidth) ||
+      GetPlatform.isAndroid ||
+      GetPlatform.isIOS ||
+      GetPlatform.isMobile;
 
   static void snackBar({
     String message = 'Snack bar test',

@@ -42,7 +42,7 @@ class RandomizationService {
         randomizeAnswers: randomizeAnswers,
       );
     }).toList();
-    randomizedSections.shuffle();
+    randomizedSections.shuffle(_random);
 
     return QuizData(sections: randomizedSections);
   }
@@ -71,29 +71,12 @@ class RandomizationService {
   /// Randomizes the answer options for a single question
   /// Updates the correct answer indices to match the new positions
   Question _randomizeAnswers(Question question) {
-    // Create pairs of (option, originalIndex)
-    final optionPairs = <(String, int)>[];
-    for (int i = 0; i < question.options.length; i++) {
-      optionPairs.add((question.options[i], i));
-    }
-
-    // Shuffle the pairs
-    optionPairs.shuffle(_random);
-
-    // Extract shuffled options
-    final shuffledOptions = optionPairs.map((pair) => pair.$1).toList();
-
-    // Map old correct indices to new correct indices
-    final newCorrectIndices = question.correct.map((oldIndex) {
-      // Find where the option at oldIndex ended up
-      return optionPairs.indexWhere((pair) => pair.$2 == oldIndex);
-    }).toList();
-
+    question.options.shuffle(_random);
     return Question(
       question: question.question,
       type: question.type,
-      options: shuffledOptions,
-      correct: newCorrectIndices,
+      options: question.options,
+      correct: question.correct,
       timeLimit: question.timeLimit,
     );
   }

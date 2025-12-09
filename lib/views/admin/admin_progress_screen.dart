@@ -7,6 +7,8 @@ import '../../services/main_controller.dart';
 import 'admin_result_screen.dart';
 
 class AdminQuizProgressScreen extends StatelessWidget {
+  static String routeName = '/quiz-progress';
+
   const AdminQuizProgressScreen({super.key});
 
   @override
@@ -198,7 +200,7 @@ class AdminQuizProgressScreen extends StatelessWidget {
                                                   top: 1,
                                                 ),
                                                 child: Text(
-                                                  '${progress / MainController.find.questionsNumber * 100}%',
+                                                  '${(progress / MainController.find.questionsNumber * 100).toInt()}%',
                                                   textAlign: TextAlign.center,
                                                   style: TextStyle(
                                                     color: Colors.white,

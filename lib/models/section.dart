@@ -15,14 +15,20 @@ class Section {
         // Web-friendly
         for (var q in questionsData) {
           questionsList.add(
-            Question.fromJson(Map<String, dynamic>.from(q as Map)),
+            Question.fromJson(
+              Map<String, dynamic>.from(q as Map),
+              questionsData.indexOf(q),
+            ),
           );
         }
       } else if (questionsData is Map) {
         // Mobile / standard
         for (var q in questionsData.values) {
           questionsList.add(
-            Question.fromJson(Map<String, dynamic>.from(q as Map)),
+            Question.fromJson(
+              Map<String, dynamic>.from(q as Map),
+              questionsData.values.toList().indexOf(q),
+            ),
           );
         }
       }

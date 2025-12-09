@@ -9,6 +9,8 @@ import 'package:quiz_games/views/widgets/app_header.dart';
 import '../../services/main_controller.dart';
 
 class AdminScreen extends StatefulWidget {
+  static String routeName = '/admin';
+
   const AdminScreen({super.key});
 
   @override
@@ -68,23 +70,23 @@ class _AdminScreenState extends State<AdminScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFE8EAF6),
-      body: Center(
-        child: Container(
-          constraints: BoxConstraints(maxWidth: 800),
-          margin: const EdgeInsets.all(20),
-          padding: const EdgeInsets.all(40),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(25),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Container(
+            constraints: BoxConstraints(maxWidth: 800),
+            margin: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(40),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(25),
+                  blurRadius: 20,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,

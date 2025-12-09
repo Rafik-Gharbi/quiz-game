@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:quiz_games/models/student_data.dart';
 import 'package:quiz_games/services/theme/theme.dart';
 import 'package:quiz_games/utils/constants/colors.dart';
+import 'package:quiz_games/utils/helper.dart';
 import 'package:quiz_games/views/widgets/app_header.dart';
 
 import '../../services/main_controller.dart';
 
 class StudentResultScreen extends StatelessWidget {
+  static String routeName = '/student-result';
+
   const StudentResultScreen({super.key});
 
   @override
@@ -29,6 +32,8 @@ class StudentResultScreen extends StatelessWidget {
           MainController.find.studentData = StudentData.fromJson(
             Map<String, dynamic>.from(data as Map),
           );
+
+
 
           // Calculate wrong questions
           final wrongQuestions = <Map<String, dynamic>>[];
@@ -71,13 +76,13 @@ class StudentResultScreen extends StatelessWidget {
                   'question': question.question,
                   'hasCheated': hasCheated,
                   'correctAnswer': question.correct
-                      .map((idx) => question.options[idx])
+                      .map((idx) => question.options[idx].text)
                       .join(', '),
                   'userAnswer': answer != null
                       ? (question.type == 'single'
-                            ? question.options[answer]
+                            ? question.options[answer].text
                             : (answer as List)
-                                  .map((idx) => question.options[idx])
+                                  .map((idx) => question.options[idx].text)
                                   .join(', '))
                       : 'Not answered',
                 });
@@ -114,50 +119,62 @@ class StudentResultScreen extends StatelessWidget {
                       ],
                     ),
                     child: Row(
+                      spacing: 15,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              'Quiz Complete!',
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF2C3E50),
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: const Text(
+                                  'Quiz Complete!',
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2C3E50),
+                                  ),
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Great job, ${MainController.find.currentStudent!.name}!',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey.shade600,
+                              const SizedBox(height: 8),
+                              Text(
+                                'Great job, ${MainController.find.currentStudent!.name}!',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey.shade600,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              'Your Score',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF2C3E50),
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                'Your Score',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xFF2C3E50),
+                                ),
                               ),
-                            ),
-                            // const SizedBox(height: 8),
-                            Text(
-                              '${MainController.find.studentData!.score} points',
-                              style: const TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF5B7FFF),
+                              // const SizedBox(height: 8),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  '${MainController.find.studentData!.score} points',
+                                  style: const TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF5B7FFF),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -300,46 +317,19 @@ class StudentResultScreen extends StatelessWidget {
                                   const SizedBox(height: 16),
                                   Row(
                                     children: [
-                                      if (wq['hasCheated'] == true) ...[
-                                        Container(
-                                          padding: const EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                Icons.warning_outlined,
-                                                color: Colors.red,
-                                                size: 20,
-                                              ),
-                                              const SizedBox(height: 6),
-                                              SizedBox(
-                                                width: 80,
-                                                child: Text(
-                                                  'Cheating detected!',
-                                                  softWrap: true,
-                                                  textAlign: TextAlign.center,
-                                                  style: AppFonts.x12Regular
-                                                      .copyWith(
-                                                        color:
-                                                            Colors.red.shade700,
-                                                      ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
+                                      if (!Helper.isMobile() &&
+                                          wq['hasCheated'] == true) ...[
+                                        _buildCheatingDetectedCard(),
                                         const SizedBox(width: 8),
                                       ],
                                       Expanded(
                                         child: Column(
                                           children: [
+                                            if (Helper.isMobile() &&
+                                                wq['hasCheated'] == true) ...[
+                                              _buildCheatingDetectedCard(),
+                                              const SizedBox(height: 8),
+                                            ],
                                             Container(
                                               padding: const EdgeInsets.all(12),
                                               decoration: BoxDecoration(
@@ -635,6 +625,32 @@ class StudentResultScreen extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Container _buildCheatingDetectedCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.warning_outlined, color: Colors.red, size: 20),
+          const SizedBox(height: 6),
+          SizedBox(
+            width: 80,
+            child: Text(
+              'Cheating detected!',
+              softWrap: true,
+              textAlign: TextAlign.center,
+              style: AppFonts.x12Regular.copyWith(color: Colors.red.shade700),
+            ),
+          ),
+        ],
       ),
     );
   }
