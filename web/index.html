@@ -144,7 +144,7 @@
         delete sessionStorage.redirect;
         if (
           redirect &&
-          redirect !== location.pathname.replace("/quiz_game", "")
+          redirect !== location.pathname.replace("/quiz-game", "")
         ) {
           history.replaceState(null, "", redirect);
         }

@@ -25,7 +25,7 @@ jobs:
         run: flutter pub get
 
       - name: Build web
-        run: flutter build web --release --base-href "/quiz_game/"
+        run: flutter build web --release --base-href "/quiz-game/"
         # run: flutter build web --release
 
       - name: Deploy to GitHub Pages
