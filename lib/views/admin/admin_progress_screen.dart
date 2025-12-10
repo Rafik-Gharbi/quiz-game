@@ -1,7 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:quiz_games/views/widgets/app_header.dart';
+import 'package:quiz_game/views/widgets/app_header.dart';
 
 import '../../services/main_controller.dart';
 import 'admin_result_screen.dart';
@@ -45,14 +45,10 @@ class AdminQuizProgressScreen extends StatelessWidget {
 
               if (allFinished && students.isNotEmpty) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  MainController.find.dbRoomRef.update({
-                    'status': 'finished',
-                  });
+                  MainController.find.dbRoomRef.update({'status': 'finished'});
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => AdminResultsScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => AdminResultsScreen()),
                   );
                 });
               }

@@ -5,12 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart' show debugPrint;
 import 'package:get/get.dart';
-import 'package:quiz_games/models/student.dart';
-import 'package:quiz_games/services/shared_preferences.dart';
-import 'package:quiz_games/services/randomization_service.dart';
-import 'package:quiz_games/utils/constants/shared_preferences_keys.dart';
-import 'package:quiz_games/views/admin/admin_screen.dart';
-import 'package:quiz_games/views/student/student_screen.dart';
+import 'package:quiz_game/models/student.dart';
+import 'package:quiz_game/services/shared_preferences.dart';
+import 'package:quiz_game/services/randomization_service.dart';
+import 'package:quiz_game/utils/constants/shared_preferences_keys.dart';
+import 'package:quiz_game/views/admin/admin_screen.dart';
+import 'package:quiz_game/views/student/student_screen.dart';
 
 import '../models/quiz_data.dart';
 import '../models/student_data.dart';

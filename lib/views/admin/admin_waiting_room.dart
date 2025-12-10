@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter/services.dart' show ClipboardData, Clipboard;
 import 'package:get/get.dart';
-import 'package:quiz_games/models/section.dart';
-import 'package:quiz_games/models/student.dart';
-import 'package:quiz_games/services/theme/theme.dart';
-import 'package:quiz_games/views/admin/admin_result_screen.dart';
-import 'package:quiz_games/views/widgets/app_header.dart';
+import 'package:quiz_game/models/section.dart';
+import 'package:quiz_game/models/student.dart';
+import 'package:quiz_game/services/theme/theme.dart';
+import 'package:quiz_game/views/admin/admin_result_screen.dart';
+import 'package:quiz_game/views/widgets/app_header.dart';
 
 import '../../services/main_controller.dart';
 import 'admin_progress_screen.dart';

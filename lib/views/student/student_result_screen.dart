@@ -1,10 +1,10 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:quiz_games/models/student_data.dart';
-import 'package:quiz_games/services/theme/theme.dart';
-import 'package:quiz_games/utils/constants/colors.dart';
-import 'package:quiz_games/utils/helper.dart';
-import 'package:quiz_games/views/widgets/app_header.dart';
+import 'package:quiz_game/models/student_data.dart';
+import 'package:quiz_game/services/theme/theme.dart';
+import 'package:quiz_game/utils/constants/colors.dart';
+import 'package:quiz_game/utils/helper.dart';
+import 'package:quiz_game/views/widgets/app_header.dart';
 
 import '../../services/main_controller.dart';
 
@@ -32,8 +32,6 @@ class StudentResultScreen extends StatelessWidget {
           MainController.find.studentData = StudentData.fromJson(
             Map<String, dynamic>.from(data as Map),
           );
-
-
 
           // Calculate wrong questions
           final wrongQuestions = <Map<String, dynamic>>[];

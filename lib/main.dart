@@ -2,16 +2,16 @@ import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
-import 'package:quiz_games/services/anti_cheating_service.dart';
+import 'package:quiz_game/services/anti_cheating_service.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:quiz_games/views/admin/admin_progress_screen.dart';
-import 'package:quiz_games/views/admin/admin_result_screen.dart';
-import 'package:quiz_games/views/admin/admin_screen.dart';
-import 'package:quiz_games/views/admin/admin_waiting_room.dart';
-import 'package:quiz_games/views/student/student_quiz_screen.dart';
-import 'package:quiz_games/views/student/student_result_screen.dart';
-import 'package:quiz_games/views/student/student_screen.dart';
-import 'package:quiz_games/views/student/student_waiting_screen.dart';
+import 'package:quiz_game/views/admin/admin_progress_screen.dart';
+import 'package:quiz_game/views/admin/admin_result_screen.dart';
+import 'package:quiz_game/views/admin/admin_screen.dart';
+import 'package:quiz_game/views/admin/admin_waiting_room.dart';
+import 'package:quiz_game/views/student/student_quiz_screen.dart';
+import 'package:quiz_game/views/student/student_result_screen.dart';
+import 'package:quiz_game/views/student/student_screen.dart';
+import 'package:quiz_game/views/student/student_waiting_screen.dart';
 
 import 'services/main_controller.dart';
 import 'services/shared_preferences.dart';
@@ -47,10 +47,7 @@ class QuizApp extends StatelessWidget {
         // home: const HomeScreen(),
         initialRoute: HomeScreen.routeName,
         getPages: [
-          GetPage(
-            name: HomeScreen.routeName,
-            page: () => const HomeScreen(),
-          ),
+          GetPage(name: HomeScreen.routeName, page: () => const HomeScreen()),
           GetPage(
             name: StudentScreen.routeName,
             page: () => const StudentScreen(),
@@ -67,10 +64,7 @@ class QuizApp extends StatelessWidget {
             name: StudentResultScreen.routeName,
             page: () => const StudentResultScreen(),
           ),
-          GetPage(
-            name: AdminScreen.routeName,
-            page: () => const AdminScreen(),
-          ),
+          GetPage(name: AdminScreen.routeName, page: () => const AdminScreen()),
           GetPage(
             name: AdminWaitingRoomScreen.routeName,
             page: () => const AdminWaitingRoomScreen(),
@@ -98,4 +92,3 @@ class InitialBindings implements Bindings {
     Get.put(AntiCheatingService(), permanent: true);
   }
 }
-

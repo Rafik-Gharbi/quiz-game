@@ -152,7 +152,7 @@ A: No, it's set by the admin when creating the room.
 To use in code:
 
 ```dart
-import 'package:quiz_games/services/randomization_service.dart';
+import 'package:quiz_game/services/randomization_service.dart';
 
 // Randomize everything
 var randomized = RandomizationService().randomizeAll(quizData);

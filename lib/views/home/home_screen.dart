@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:quiz_games/services/main_controller.dart';
-import 'package:quiz_games/views/widgets/app_header.dart';
+import 'package:quiz_game/services/main_controller.dart';
+import 'package:quiz_game/views/widgets/app_header.dart';
 
 import '../admin/admin_screen.dart';
 import '../student/student_screen.dart';

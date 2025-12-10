@@ -1,6 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:quiz_games/views/widgets/app_header.dart';
+import 'package:quiz_game/views/widgets/app_header.dart';
 
 import '../../models/student_data.dart';
 import '../../services/main_controller.dart';

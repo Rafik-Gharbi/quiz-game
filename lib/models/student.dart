@@ -1,4 +1,4 @@
-import 'package:quiz_games/utils/helper.dart';
+import 'package:quiz_game/utils/helper.dart';
 
 class Student {
   final String uid;

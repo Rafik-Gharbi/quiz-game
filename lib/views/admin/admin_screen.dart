@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:quiz_games/utils/helper.dart';
-import 'package:quiz_games/views/widgets/app_header.dart';
+import 'package:quiz_game/utils/helper.dart';
+import 'package:quiz_game/views/widgets/app_header.dart';
 
 import '../../services/main_controller.dart';
 

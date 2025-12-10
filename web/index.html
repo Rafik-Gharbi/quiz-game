@@ -23,13 +23,13 @@
     <!-- iOS meta tags & icons -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <meta name="apple-mobile-web-app-title" content="quiz_games" />
+    <meta name="apple-mobile-web-app-title" content="quiz_game" />
     <link rel="apple-touch-icon" href="icons/quiz-logo.png" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="favicon.png" />
 
-    <title>quiz_games</title>
+    <title>quiz_game</title>
     <link rel="manifest" href="manifest.json" />
 
     <style>
@@ -144,12 +144,37 @@
         delete sessionStorage.redirect;
         if (
           redirect &&
-          redirect !== location.pathname.replace("/group_leaderboard", "")
+          redirect !== location.pathname.replace("/quiz_game", "")
         ) {
           history.replaceState(null, "", redirect);
         }
       })();
     </script>
-    <script src="flutter_bootstrap.js" async></script>
+    <script>
+      if (!window.flutterInitialized) {
+        window.flutterInitialized = true;
+
+        // Show the Flutter app and hide the loading screen when ready
+        function hideLoadingAndShowFlutter() {
+          document.getElementById("loading").classList.add("hidden");
+          document
+            .getElementById("flutter-container")
+            .classList.remove("hidden");
+        }
+
+        // Dynamically inject the Flutter script
+        const flutterScript = document.createElement("script");
+        flutterScript.src = "flutter_bootstrap.js";
+        flutterScript.defer = true;
+
+        // Listen for the Flutter app to finish initialization
+        flutterScript.onload = () => {
+          hideLoadingAndShowFlutter();
+        };
+
+        document.body.appendChild(flutterScript);
+      }
+    </script>
+    <!-- <script src="flutter_bootstrap.js" async></script> -->
   </body>
 </html>

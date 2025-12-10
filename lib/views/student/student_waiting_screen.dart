@@ -1,9 +1,9 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:quiz_games/services/anti_cheating_service.dart';
-import 'package:quiz_games/views/student/student_result_screen.dart';
-import 'package:quiz_games/views/widgets/app_header.dart';
+import 'package:quiz_game/services/anti_cheating_service.dart';
+import 'package:quiz_game/views/student/student_result_screen.dart';
+import 'package:quiz_game/views/widgets/app_header.dart';
 
 import '../../models/student.dart';
 import '../../services/main_controller.dart';

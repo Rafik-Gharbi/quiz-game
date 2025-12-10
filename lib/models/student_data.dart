@@ -1,4 +1,4 @@
-import 'package:quiz_games/models/student.dart';
+import 'package:quiz_game/models/student.dart';
 
 import '../utils/helper.dart';
 

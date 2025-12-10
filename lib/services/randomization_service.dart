@@ -1,7 +1,7 @@
 import 'dart:math';
-import 'package:quiz_games/models/quiz_data.dart';
-import 'package:quiz_games/models/section.dart';
-import 'package:quiz_games/models/question.dart';
+import 'package:quiz_game/models/quiz_data.dart';
+import 'package:quiz_game/models/section.dart';
+import 'package:quiz_game/models/question.dart';
 
 /// Service for handling randomization of questions and answers in quizzes
 /// This allows admins to configure whether questions and/or answers should be randomized

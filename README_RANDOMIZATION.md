@@ -174,7 +174,7 @@ The service is already integrated! Just check the boxes in the admin panel when 
 ## API Examples
 
 ```dart
-import 'package:quiz_games/services/randomization_service.dart';
+import 'package:quiz_game/services/randomization_service.dart';
 
 // Randomize everything
 final randomized = RandomizationService().randomizeAll(quizData);
@@ -256,7 +256,7 @@ flutter test test/services/randomization_service_test.dart
 ## File Locations Reference
 
 ```
-quiz_games/
+quiz_game/
 ├── lib/services/
 │   ├── randomization_service.dart          ← New service
 │   └── main_controller.dart                ← Modified

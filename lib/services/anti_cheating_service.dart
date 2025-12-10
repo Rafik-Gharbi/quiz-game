@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/material.dart' show Durations;
-import 'package:quiz_games/models/question.dart';
-import 'package:quiz_games/services/main_controller.dart';
-import 'package:quiz_games/views/widgets/fullscreen_dialog.dart';
+import 'package:quiz_game/models/question.dart';
+import 'package:quiz_game/services/main_controller.dart';
+import 'package:quiz_game/views/widgets/fullscreen_dialog.dart';
 import 'package:web/web.dart' as web;
 import 'dart:js_interop';
 import 'package:get/get.dart';

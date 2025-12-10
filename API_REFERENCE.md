@@ -271,7 +271,7 @@ class Question {
 ### Example 1: Basic Randomization
 
 ```dart
-import 'package:quiz_games/services/randomization_service.dart';
+import 'package:quiz_game/services/randomization_service.dart';
 
 // Load your quiz data
 final quizData = QuizData.fromJson(jsonData);

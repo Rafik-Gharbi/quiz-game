@@ -45,7 +45,7 @@ The randomization is applied automatically before the room is created.
 To use the randomization service programmatically:
 
 ```dart
-import 'package:quiz_games/services/randomization_service.dart';
+import 'package:quiz_game/services/randomization_service.dart';
 
 // Randomize both questions and answers
 final randomized = RandomizationService().randomizeAll(quizData);

@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:quiz_games/services/anti_cheating_service.dart';
-import 'package:quiz_games/utils/constants/colors.dart';
+import 'package:quiz_game/services/anti_cheating_service.dart';
+import 'package:quiz_game/utils/constants/colors.dart';
 
 import '../../models/question.dart';
 import '../../services/main_controller.dart';

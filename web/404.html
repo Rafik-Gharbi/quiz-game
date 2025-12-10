@@ -5,12 +5,12 @@
     <title>Redirecting...</title>
     <script type="text/javascript">
       const redirectTo = window.location.pathname
-        .replace("/quiz_games", "") // remove repo base
+        .replace("/quiz_game", "") // remove repo base
         .replace(/^\//, ""); // remove starting slash if any
 
       // Store the target path in sessionStorage
       sessionStorage.redirect = redirectTo;
-      window.location.replace("/quiz_games/");
+      window.location.replace("/quiz_game/");
     </script>
   </head>
   <body>

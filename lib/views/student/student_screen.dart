@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:quiz_games/services/anti_cheating_service.dart';
-import 'package:quiz_games/views/widgets/app_header.dart';
+import 'package:quiz_game/services/anti_cheating_service.dart';
+import 'package:quiz_game/views/widgets/app_header.dart';
 
 import '../../services/main_controller.dart';
 import '../../utils/helper.dart';

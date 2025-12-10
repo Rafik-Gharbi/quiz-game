@@ -2,10 +2,10 @@
 // Place this in: test/services/randomization_service_test.dart
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quiz_games/models/question.dart';
-import 'package:quiz_games/models/quiz_data.dart';
-import 'package:quiz_games/models/section.dart';
-import 'package:quiz_games/services/randomization_service.dart';
+import 'package:quiz_game/models/question.dart';
+import 'package:quiz_game/models/quiz_data.dart';
+import 'package:quiz_game/models/section.dart';
+import 'package:quiz_game/services/randomization_service.dart';
 
 void main() {
   late RandomizationService service;
@@ -89,7 +89,11 @@ void main() {
         final randomizedQuestion = randomized.sections[0].questions[0];
 
         // Options should remain in original order
-        expect(randomizedQuestion.options.map((o) => o.text).toList(), ['Alpha', 'Beta', 'Gamma']);
+        expect(randomizedQuestion.options.map((o) => o.text).toList(), [
+          'Alpha',
+          'Beta',
+          'Gamma',
+        ]);
         expect(randomizedQuestion.correct, [0]);
       },
     );
@@ -116,7 +120,10 @@ void main() {
     final randomizedQuestion = randomized.sections[0].questions[0];
 
     // Options should be different
-    expect(randomizedQuestion.options.map((a) => a.text).toList(), isNot(['3', '4', '5', '6']));
+    expect(
+      randomizedQuestion.options.map((a) => a.text).toList(),
+      isNot(['3', '4', '5', '6']),
+    );
 
     // But the correct answer should still be '4'
     expect(randomizedQuestion.options[randomizedQuestion.correct[0]], '4');
@@ -259,7 +266,10 @@ void main() {
 
     // Should be identical
     expect(result.sections[0].questions[0].question, 'Q1');
-    expect(result.sections[0].questions[0].options.map((a) => a.text).toList(), ['A', 'B', 'C']);
+    expect(
+      result.sections[0].questions[0].options.map((a) => a.text).toList(),
+      ['A', 'B', 'C'],
+    );
     expect(result.sections[0].questions[0].correct, [0]);
   });
 
